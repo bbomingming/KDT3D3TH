@@ -175,7 +175,7 @@ int main()
         
         }
         {
-            enum ETier: unsigned char // enum은 이름에 E를 붙이는편, 뒤에 : 하고 원하는 타입 부여, 이름만 ETier이지 형태는 unsigned char과 같다.
+            enum class ETier: unsigned char // enum은 이름에 E를 붙이는편, 뒤에 : 하고 원하는 타입 부여, 이름만 ETier이지 형태는 unsigned char과 같다.
             {
                 Iron,
                 Bronze=10,
@@ -183,11 +183,11 @@ int main()
                 Gold,
             };
 
-            ETier Mytier = Gold;
+            ETier Mytier = ETier::Gold;
         }
 
         {
-            enum class ETier : unsigned char // class를 붙여서 제한을 둘 수 있다. 동일하게 변수 선언할때 접근지시자를 붙여줘야 한다. 
+            enum class ETier2 : unsigned char // class를 붙여서 제한을 둘 수 있다. 동일하게 변수 선언할때 접근지시자를 붙여줘야 한다. 
                 //또한 enum은 정리를 한거뿐이지 데이터가 메모리로 올라가지는 않는다. 
             {
                 Iron,
@@ -197,9 +197,9 @@ int main()
             };
 
            // ETier Mytier = Gold;
-            ETier Mytier = ETier::Gold;
+            ETier2 Mytier = ETier2::Gold;
 
-
+            //위에 열거형과 아래 열거형의 변수이름이 같아도 class를 붙여주면 사용가능하다. 
         }
     }
 
@@ -435,7 +435,7 @@ int main()
 
         }
         /*
-        for(int i : array)   <<- 범위기반: array 안에 있는 값을 i에 저장. 
+        for(int i : array)   <<- 범위기반: array 안에 있는 값을 i에 저장하고 마지막까지 반복
         {
 
         }
@@ -476,22 +476,119 @@ int main()
 
 
 #pragma region 14. 포인터와 동적 메모리 + 레퍼런스{참조}
-    {
-
-
-        //4바이트 변수를 8바이트로 타입 지정하고 8바이트 포인터로 
-        //역참조하면 4바이트 이상의 값을 대입하면 뒤에 부분까지 영향을 미친다.
-
-        /*
-        -동적 할당
+    {    /*
+        포인터의 크기는 플랫폼 bit수의 대응해서 바뀜.
+        64비트 운영체제에서는 포인터는 8바이트
+         
+         
+        4바이트 변수를 8바이트로 타입 지정하고 8바이트 포인터로 
+        역참조하면 4바이트 이상의 값을 대입하면 뒤에 부분까지 영향을 미친다.
         
+        -동적 할당
+
         포인터 변수 = new 타입{값};    이때 포인터 변수는 힙 영역의 주소값을 가짐.
         delete 포인터 변수;    스코프 탈출 후 메모리 누수를 막기 위함.
 
         */
+        
+        {
+        // malloc free 함수
 
+            int* ptr = (int*)malloc(sizeof(int));
+            *ptr = 10;
+            free(ptr);
+            ptr = nullptr;
+        }
+
+        {
+        //포인터 배열 접근 방법
+
+            int* ptr = new int[10] {0, 9, 9, 9, };
+            ptr[0] = 1; //<<- 시작 주소안의 값 100
+            *ptr = 2;
+            *(ptr + 1) = 3; //<<- 시작 주소값의 1을 더하면 다음 주소
+            delete[] ptr;//<<- 배열은 []
+        }
+
+        {
+        //구조체 동적할당
+            struct Fstruct
+            {
+                //생성자:인스턴스가 만들어질때 호출되는 함수
+                Fstruct()
+                {
+
+                }
+
+                int value1 = 0;
+                int value2 = 0;
+
+            };
+
+            Fstruct Struct;
+            Struct.value1 = 10;
+            
+            //동적할당.
+            Fstruct* ptr = new Fstruct{};    //<<<-구조체 동적할당
+            ptr->value1 = 1234;              // <-구조체 포인터     
+            (*ptr).value1 = 12412;
+
+            *((int*)(ptr)) = 5555;
+            *(((int*)(ptr))+1) = 6666;
+
+            (ptr + 1)->value1 = 7777;
+            (ptr + 2)->value2 = 8888;
+        }
+        {
+            //malloc free 
+            struct Fstruct
+            {
+                //생성자:인스턴스가 만들어질때 호출되는 함수
+                Fstruct()
+                {
+                    std::cout << "생성자";
+                }
+
+                int value1 = 0;
+                int value2 = 0;
+
+            };
+            //new delete와는 다르게 생성자와 소멸자를 호출하지 않는다.
+            //malloc은 요청한 크기만큼 메모리 할당하고 그 주소를 return함.
+            Fstruct* Struct = (Fstruct*)malloc(sizeof(Fstruct));
+
+            free (Struct);
+
+        }
+        {//함수 호출과 포인터
+            //5/12코드 참조
+            //call by value방식을 사용하면 함수에서 저장된 값을 복사하는거기 때문에 2배의
+            //공간이 사용된다.
+            //ㄴ복사 생성자가 있다고한다.
+
+            //그러나 포인털르 사용하면 주소값을 전달하기때문에 공간을 그대로 접근해서 사용한다.
+
+        }
+        //레퍼런스와 포인터 정리
+        {
+            int a = 0;
+
+            int& ptr=a;
+            ptr = 1000;
+            // 레퍼런스는 이후에 주소값은 바꿀 수 없다. 포인터는 &으로 주소값을 바꿔줄 수 있다.
+            //다른걸 못 가리킴.
+
+            int* const b = &a;  // b의 주소값은 바꿀수 없다.
+            const int* c = &a;  //c의 값은 바꿀 수 없다.
+            const int* const d = &a; //값과 주소 변경 불가
+        }
+    
     }
 #pragma endregion
+
+
+
+
 }
 
 
