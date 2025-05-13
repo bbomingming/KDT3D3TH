@@ -582,13 +582,51 @@ int main()
             const int* c = &a;  //c의 값은 바꿀 수 없다.
             const int* const d = &a; //값과 주소 변경 불가
         }
-    
+        {
+            //스마트 포인터 
+            //shared_ptr, weak_ptr
+            std::shared_ptr<int>a = std::make_shared<int>(10);
+            //reference Count 방식으로 수명 관리-> 현재 참조 횟수 1
+            //위에 shared_ptr한개 생성하고 대입하면 참조 횟수 2로 스코프 빠져나가도 값 유지
+            //메모리 없애는 방식->인스턴스가 소멸되면 count 감소->0이되면 shared ptr 소멸자 호출
+
+        }
+
+        //스마트 포인터와 구조체
+        {
+            struct Fstruct
+            {
+                Fstruct()
+                {
+                    std::cout << __FUNCTION__ << std::endl;
+                }
+                ~Fstruct()
+                {
+                    std::cout << __FUNCTION__ << std::endl;
+                }
+                int value = 0;
+
+            };
+
+            std::shared_ptr<Fstruct> SharedPtr;
+            {
+                SharedPtr = std::make_shared<Fstruct>();
+            }
+
+            //일반 포인터가 스마트 포인터의 주소를 참조하고 있을때
+            //스마트 포인터가 삭제되면 일반 포인터는 값은 사라졌지만 그대로 주소를 가르킨다.
+            //ptr=smart_ptr.get(); <<--일반포인터 참조, raw pointer을 얻는다.
+
+        }
+
+
     }
 #pragma endregion
-
-
-
-
+    {
+        //https://gdngy.tistory.com/183
+    }
+    
+    
 }
 
 
