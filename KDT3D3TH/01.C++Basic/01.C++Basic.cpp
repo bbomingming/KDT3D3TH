@@ -25,11 +25,12 @@
 #include <iostream>
 #include <format>
 #include <array>
-
+#include <string>
 //절대경로: 모든 경로를 쭉 나열<< D:\KDT3D3TH-(jbm)\KDT3D3TH <<-이런 느낌
 //<<-상대경로:특정 기준점을 기준으로 상대적으로 떨어진 경로<< Folder/Function.h 
 //include같은 경우는 지금 현재 폴더 기준
 #include "Function.h" 
+#include <locale>
 //현재 폴더 보다 상위 폴더에 포함시키고 싶은 해더파일이 있을때
 //#include"../Hello.h"
 //    ../ <<- 한칸 상위
@@ -52,7 +53,6 @@ int main()
     }
 #pragma endregion
 
-
 #pragma region 02.리터럴(literal) <코드에 표시한 숫자나 문자열과 같은 값을 의미>
     {
         //2진수는 2진수 앞에 0b 0110 0100 -> 100(10진수)
@@ -73,7 +73,6 @@ int main()
     }
 
 #pragma endregion
-
 
 #pragma region 03.변수(Variable)
     {
@@ -111,7 +110,6 @@ int main()
     }
 #pragma endregion
 
-
 #pragma region 04.지역변수, 전역변수와 메모리
     {
         //지역변수: {} 스코프 내부에서 선언, 안에서만 유효
@@ -136,7 +134,6 @@ int main()
 
 #pragma endregion
 
-
 #pragma region 05.연산자
     {
         bool b1{ !6 }; // <- false
@@ -158,7 +155,6 @@ int main()
 
     }
 #pragma endregion
-
 
 #pragma region 06. 열거형(enumerated type)  3일차
 
@@ -205,7 +201,6 @@ int main()
 
 
 #pragma endregion
-
 
 #pragma region 07. 구조체(Struct) +패딩 개념, format 사용
     {
@@ -313,7 +308,6 @@ int main()
     }
 #pragma endregion
 
-
 #pragma region 09. 논리연산자, xor연산에서 불 함수
     {
         //논리 부정
@@ -324,6 +318,7 @@ int main()
 
     }
 #pragma endregion
+
 #pragma region 10. 함수, 오버로딩, F11<-함수진입, 재귀호출
     {
        /* 
@@ -378,7 +373,6 @@ int main()
 
 #pragma endregion 
 
-
 #pragma region 11.BIT Flag
     {
     
@@ -397,7 +391,6 @@ int main()
 
     }
 #pragma endregion
-
 
 #pragma region 12. 배열
     {
@@ -472,8 +465,6 @@ int main()
 
     }
 #pragma endregion
-
-
 
 #pragma region 14. 포인터와 동적 메모리 + 레퍼런스{참조}
     {    /*
@@ -621,11 +612,155 @@ int main()
 
 
     }
-#pragma endregion
+
     {
         //https://gdngy.tistory.com/183
     }
+
+#pragma endregion
+
+#pragma region 15.타입 재정의
+#pragma endregion
+
+#pragma region 16. 문자열+locale
+    {
+        //문자열이 같으면 같은 주소를 가르킴
+        const char* text = "asdfsdafasdf";
+        const char* text2 = "asdfsdafasdf"; //<<힙
+        char text3[] = "asdfsdafasdf"; //<< 스택
+
+
+        text3[3] = '\0'; //보통 문자열의 끝
+        std::string String = { "hahaahahah" };
     
+
+        
+
+        std::cout << sizeof(String)<<std::endl;
+
+        std::cout << sizeof(text3)<<std::endl;
+
+        std::string size = {"llkasdfjlaskdflsdkfnsdlkfnsdlkfnasdlkfnsdalk;fsdalfkasdflksnl;knlknlk"};
+        std::cout << sizeof(size) << std::endl;
+        //sizeof는 현재 변수의 최대 크기를 알려줌
+
+        size_t Size = String.size(); //문자열 길이 
+        std::cout << Size << std::endl;
+        //위를해서 대입된 길이를 알게됨
+
+        {
+
+            // if(String==string)   //문자열 비교
+        }
+        {
+            std::string String = "hello 안녕";
+            String[6] = '한';
+            //손실 변환으로 데이터 깨짐
+            std::wstring WString = L"hello 안녕";
+            WString[6] = '앙';
+
+            std::wcout.imbue(std::locale(".UTF-8"));  
+
+            const std::wstring texts[] = {
+       L"どうして君だったかな 도 - 시테 키미닷타카나 어째서 너였던걸까"  // Japanese text
+            };
+
+            // 배열의 첫 번째 요소 직접 출력
+            std::wcout << texts[0] << std::endl;
+        }
+
+        //출력을 위해서는 인코딩 설정이 필수, locale설정으로 
+        // #include<lacale>
+        // std::wcout.imbue(std::locale(".UTF-8"));
+        //메모리 내부에서는 locale설정없이도 동작
+        
+    }
+
+    
+#pragma endregion
+
+#pragma region 17. 클래스
+    {
+      
+        // 클래스는 데이터(변수)와 함수(메서드)를 묶어서 하나의 단위로 만들 수 있습니다.
+        class FClass
+        {
+                        // 접근 지정자 기본은 private
+                        // public: 외부에서 접근 가능(호출, Read Write 불가)
+                        // private: 외부에서 접근 불가(호출불가, Read Write 불가)
+            public:
+
+               FClass()                    // 생성자: 인스턴스가 만들어질 때 호출되는 함수
+                : Value2(1000)
+               {
+                std::cout << "FClass 생성자!\n";
+                /*this->*/Value1 = 12345;
+               }
+
+
+              ~FClass()                    // 소멸자: 인스턴스가 삭제될 때 호출되는 함수
+              {
+                std::cout << "FClass 소멸자!\n";
+              }
+
+
+               void Function(/*  FClass* this   */)
+               {
+                // this = nullptr; // 불가능
+                std::cout << std::format("Value1: {}, Value2: {}",this->Value1, Value2);   //this가 생략됨                        
+                // 맴버 함수를 호출 하는 경우
+                // __thiscall: 숨겨진 인자로 this가 전달 된다
+               }
+
+              void SetValue1(int InValue)
+              {
+                    Value1 = InValue;
+                    std::cout << "Value1: " << Value1 << std::endl;;
+              }
+
+                                                     // 리턴값을 받지 않으면 경고를 띄워주는 에트리뷰트
+                                                     // 함수 인자 뒤에 const가 붙으면 this를 "const" FClass* this로 바꿔줍니다
+                                                [[nodiscard]] int GetValue1() const
+                                                {
+                                                    /*this;
+                                                    Value1 = 100;
+                                                    int a = 10;
+                                                    a = 20;*/
+                                                    return Value1;
+                                                }
+
+        private:
+            int Value1 = 3;
+            int Value2 = 2;
+        };
+        FClass Class;
+        /*int* Pointer = (int*)&Class;
+        *Pointer = 8888;*/
+
+        Class.Function();
+        Class.SetValue1(10);
+        int Value1 = Class.GetValue1();
+        Class.GetValue1();
+        // private 맴버에 접근을 할 수 없다
+        // Class.Value1 = 10;
+        //Class.Value2 = 20;
+    }
+
+
+#pragma endregion
+
+#pragma endregion 18. 다중 포인터
+    {
+        int** ptr = { nullptr };
+
+        ptr = new int* { nullptr }; //stack 영역에 힙 주소
+        *ptr = new int{ 10 }; //위 힙 주소 안->10 <-16진수 표시, 부호 있는 표시 선택
+        **ptr = 20;
+
+        std::cout << **ptr;
+        std::cout << "**ptr의 주소: " << &(**ptr) << std::endl;
+    }
+#pragma region
     
 }
 
