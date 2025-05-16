@@ -36,6 +36,9 @@
 //    ../ <<- 한칸 상위
 //    .   <<-현재 폴더
 
+
+using namespace std;
+
 int main()
 {   
     
@@ -761,8 +764,122 @@ int main()
         std::cout << "**ptr의 주소: " << &(**ptr) << std::endl;
     }
 #pragma region
+
+
+#pragma region 19. 그냥 배운거 this, static, class의 객체 ******
+    {
+        class A
+        {
+        public:
+            int num = 10;
+
+            void print_This() {
+                cout << this << endl; //호출한 객체의 주소를 리턴
+            }
+            A& return_This() {
+                return *this; //호출한 객체 자체를 리턴
+            }
+        };
+
+
+        A a;
+        a.print_This();
+        A& ref = a.return_This();
+        ref.print_This();
+        return 0;
+        /*
+        1. C++에서 this와 레퍼런스
+
+this는 멤버 함수 내에서 호출된 객체 자신의 포인터(클래스명* this).
+ㄴ주소
+
+*this는 그 객체 자체(레퍼런스).
+ㄴ즉 (*this).value로 접근이 된다.
+
+return *this;
+ㄴ레퍼런스로 반환하면 호출한 객체 자신을 가리키게 된다.
+
+A& ref = a.return_This();에서 ref는 a 객체를 참조하므로 주소가 같다.
+
+레퍼런스가 아니라 일반 변수로 받으면 복사본이 만들어지고 주소는 다르다.
+ㄴref와 a의 객체 주소가 다르다.
+
+2. this->Value vs Value
+클래스 내부 멤버 함수에서 Value는 this->Value와 같다.
+
+this->Value는 명시적으로 현재 객체의 멤버를 가리킴.
+
+함수 매개변수나 로컬 변수와 멤버 변수가 겹칠 때 구분할 때 쓰임.
+
+3. static 멤버 함수와 this
+static 멤버 함수에는 this 포인터가 없다.
+
+이유: static 함수는 객체 없이 클래스 이름으로 호출 가능하므로 특정 객체가 없어서 this가 존재하지 않는다.
+
+static 함수 내에서는 인스턴스 멤버 변수에 접근 불가, 클래스 내 static 변수나 다른 함수만 접근 가능.
+
+4. 객체 인스턴스와 멤버 변수 주소
+A a;
+A b;
+처럼 여러 객체를 만들면 각각 멤버 변수(a.value, b.value)는 독립된 메모리 공간을 갖는다.
+
+따라서 주소값은 다르다.
+
+단, static 멤버 변수는 모든 객체가 공유해서 주소가 같다.
+
+5. 클래스와 인스턴스 메모리
+클래스 자체는 설계도라서 인스턴스가 없으면 멤버 변수에 대응하는 메모리 공간이 없다.
+
+단, static 멤버 변수와 함수, 타입 정보 등은 프로그램 시작 시 메모리에 올라가 있다.
+
+인스턴스(객체)가 생성될 때 해당 객체만의 메모리 공간이 할당되어 멤버 변수가 존재하게 된다.
+
+
+
+        */
+
+        // static 멤버 변수 관련 정리
+
+        // 1. static 멤버 변수는 클래스 내부(보통 헤더 파일)에서 '선언'만 한다.
+        //    예: static int count;
+
+        // 2. static 멤버 변수는 반드시 cpp 파일 등 전역 스코프에서 '정의'해야 한다.
+        //    예: int ClassName::count = 0;
+
+        // 3. static 멤버 변수는 모든 인스턴스에서 공유되며,
+        //    인스턴스를 만들지 않고도 접근 가능하다.
+        //    예: ClassName::count;
+
+        // 4. C++17 이상부터는 inline static을 사용하면 클래스 내부에서 선언과 정의를 동시에 할 수 있다.
+        //    예: inline static int count = 0;
+
+        //이처럼 
+    }
+    /*
+    class Player
+    {
+    public:
+        static int PlayerCount;
+
+        Player() {
+            PlayerCount++; // 모든 Player가 공유
+        }
+    };
+    int Player::PlayerCount = 0;
+    */ 
+
+
+
+
+    
+
+#pragma endregion
+
+
     
 }
+
+
 
 
 

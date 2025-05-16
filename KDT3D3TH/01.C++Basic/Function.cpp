@@ -1,11 +1,25 @@
 #include "Function.h"
 
-bool BackFlag(unsigned char target, unsigned char proprety)
+int main()
 {
 
-	if (target & EPropertyFlags::Eproperty1)
 	{
-		return true;
+		bool BackFlag(unsigned char target, unsigned char proprety)
+		{
+			if (target & EPropertyFlags::Eproperty1)
+			{
+				return true;
+			}
+			return false;
+		}
 	}
-	return false;
+
+
+
+
+
+
+
 }
+
+
