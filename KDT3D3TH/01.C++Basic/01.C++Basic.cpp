@@ -828,61 +828,61 @@ int main()
             A& return_This() {
                 return *this; //호출한 객체 자체를 리턴
             }
-        };
+        };     //this는 포인터이다!
 
 
-        A a;
-        a.print_This();
-        A& ref = a.return_This();
+        A a;                           //객체 a생성
+        a.print_This();                //객체 a의 print_This함수 호출->this 출력(자신의 주소값)
+        A& ref = a.return_This();      //래퍼런스 ref는 a의 객체 자신을 받아온다. 
         ref.print_This();
         return 0;
         /*
         1. C++에서 this와 레퍼런스
 
-this는 멤버 함수 내에서 호출된 객체 자신의 포인터(클래스명* this).
-ㄴ주소
-
-*this는 그 객체 자체(레퍼런스).
-ㄴ즉 (*this).value로 접근이 된다.
-
-return *this;
-ㄴ레퍼런스로 반환하면 호출한 객체 자신을 가리키게 된다.
-
-A& ref = a.return_This();에서 ref는 a 객체를 참조하므로 주소가 같다.
-
-레퍼런스가 아니라 일반 변수로 받으면 복사본이 만들어지고 주소는 다르다.
-ㄴref와 a의 객체 주소가 다르다.
-
-2. this->Value vs Value
-클래스 내부 멤버 함수에서 Value는 this->Value와 같다.
-
-this->Value는 명시적으로 현재 객체의 멤버를 가리킴.
-
-함수 매개변수나 로컬 변수와 멤버 변수가 겹칠 때 구분할 때 쓰임.
-
-3. static 멤버 함수와 this
-static 멤버 함수에는 this 포인터가 없다.
-
-이유: static 함수는 객체 없이 클래스 이름으로 호출 가능하므로 특정 객체가 없어서 this가 존재하지 않는다.
-
-static 함수 내에서는 인스턴스 멤버 변수에 접근 불가, 클래스 내 static 변수나 다른 함수만 접근 가능.
-
-4. 객체 인스턴스와 멤버 변수 주소
-A a;
-A b;
-처럼 여러 객체를 만들면 각각 멤버 변수(a.value, b.value)는 독립된 메모리 공간을 갖는다.
-
-따라서 주소값은 다르다.
-
-단, static 멤버 변수는 모든 객체가 공유해서 주소가 같다.
-
-5. 클래스와 인스턴스 메모리
-클래스 자체는 설계도라서 인스턴스가 없으면 멤버 변수에 대응하는 메모리 공간이 없다.
-
-단, static 멤버 변수와 함수, 타입 정보 등은 프로그램 시작 시 메모리에 올라가 있다.
-
-인스턴스(객체)가 생성될 때 해당 객체만의 메모리 공간이 할당되어 멤버 변수가 존재하게 된다.
-
+        this는 멤버 함수 내에서 호출된 객체 자신의 포인터(클래스명* this).
+        ㄴ주소
+        
+        *this는 그 객체 자체(레퍼런스).
+        ㄴ즉 (*this).value로 접근이 된다.
+        
+        return *this;
+        ㄴ레퍼런스로 반환하면 호출한 객체 자신을 가리키게 된다.
+        
+        A& ref = a.return_This();에서 ref는 a 객체를 참조하므로 주소가 같다.
+        
+        레퍼런스가 아니라 일반 변수로 받으면 복사본이 만들어지고 주소는 다르다.
+        ㄴref와 a의 객체 주소가 다르다.
+        
+        2. this->Value vs Value
+        클래스 내부 멤버 함수에서 Value는 this->Value와 같다.
+        
+        this->Value는 명시적으로 현재 객체의 멤버를 가리킴.
+        
+        함수 매개변수나 로컬 변수와 멤버 변수가 겹칠 때 구분할 때 쓰임.
+        
+        3. static 멤버 함수와 this
+        static 멤버 함수에는 this 포인터가 없다.
+        
+        이유: static 함수는 객체 없이 클래스 이름으로 호출 가능하므로 특정 객체가 없어서 this가 존재하지 않는다.
+        
+        static 함수 내에서는 인스턴스 멤버 변수에 접근 불가, 클래스 내 static 변수나 다른 함수만 접근 가능.
+        
+        4. 객체 인스턴스와 멤버 변수 주소
+        A a;
+        A b;
+        처럼 여러 객체를 만들면 각각 멤버 변수(a.value, b.value)는 독립된 메모리 공간을 갖는다.
+        
+        따라서 주소값은 다르다.
+        
+        단, static 멤버 변수는 모든 객체가 공유해서 주소가 같다.
+        
+        5. 클래스와 인스턴스 메모리
+        클래스 자체는 설계도라서 인스턴스가 없으면 멤버 변수에 대응하는 메모리 공간이 없다.
+        
+        단, static 멤버 변수와 함수, 타입 정보 등은 프로그램 시작 시 메모리에 올라가 있다.
+        
+        인스턴스(객체)가 생성될 때 해당 객체만의 메모리 공간이 할당되어 멤버 변수가 존재하게 된다.
+        
 
 
         */
@@ -1080,24 +1080,172 @@ int main() {
 
 */
     
+
+/*
+복사생성자: 새로운 객체를 생성할때 기존 객체의 값을 복사
+FClass(const FClass& InOther)
+    : Value(InOther.Value)                    // 얕은 복사<-주소값 복사
+    , Pointer(new int(*InOther.Pointer))     // 깊은 복사: 새로운 메모리 할당 후 값 복사
+    ㄴ멤버 변수가 포인터
+    , SharedPtr(new int(*InOther.Pointer))   // 깊은 복사: 새로운 메모리 할당 후 값 복사
+    ㄴ멤버 변수가 스마트 포인터
+{}
+
+
+복사대입연산자: 두 객체가 있을대 대입
+void operator=(const int InValue)
+{
+    Value = InValue;
+}
+
+void operator=(const FClass& InOther)
+{
+    Value = InOther.Value;
+    *Pointer = *InOther.Pointer;
+    *SharedPtr = *InOther.SharedPtr;
+}
+
+
+*/
+
+/*
+기본적인 싱글톤 클래스 https://hwan-shell.tistory.com/227
+ㄴ전역에서 한개의 인스턴스만 생성해서 다른 변수들은 한개의 인스턴스만 참조한다, 결국 주소값이 같다.
+
+lass FAssetManager
+{
+public:
+    static FAssetManager* Get()
+    {
+        static FAssetManager Instance;
+        return &Instance;
+        ㄴinstance의 타입이 FAssetManager이기 때문에 함수 반환형도 동일
+    }
+
+    void Initialize(int InWidth, int InHeight)
+    {
+        Width = InWidth;
+        Height = InHeight;
+        std::cout << std::format("가로: {}, 세로: {}", Width, Height);
+    }
+
+private:
+    FAssetManager() = default;
+    ~FAssetManager() = default;
+
+    FAssetManager(const FAssetManager&) = delete;
+    FAssetManager& operator=(const FAssetManager&) = delete;
+    ㄴ사용안하겠다는 의미
+
+private:
+    int Width = 0;
+    int Height = 0;
+};
+
+int main()
+{
+FAssetManager a;
+FAssetManager b;
+ㄴ여기는 서로 다른 객체 생성. 싱클턴이 아님
+
+FAssetManager* a = FAssetManager::Get();
+FAssetManager* b = FAssetManager::Get();
+ㄴa, b모두 한개의 인스턴스를 가리킴
+
+FAssetManager::Get()->Initialize(128, 256);
+ㄴ 바로 접근.
+
+}
+
+
+캐스팅에서 virtual이 소멸자에도 있으면 dynamic_cast가능
+
+
+
+*/
+
+/*
+#pragma once
+#include <vector>
+
+inline int Sum(const int a, const int b) 메인함수에 sum복사
+{
+    return a + b;
+}
+
+inline double Sum(const double a, const double b = 20.f)
+{
+    return a + b;
+}
+
+아래가 템플릿
+
+// T는 내가 원하는 이름을 넣으시면 됩니다
+//template<class T>
+template<typename T>
+T TemplateSum(T a, T b)
+{
+    return a + b;
+}
+
+template<class RetType, class T1, class T2=int>
+RetType TemplateSum2(T1 a, T2 b)
+{
+    return a + b;
+}
+
+
+#include <iostream>
+#include "Template.h" <-포함
+
+struct FStruct
+{
+    FStruct operator+(const FStruct& InOther)
+    {
+        FStruct Instance;
+        Instance.Val0 = Val0 + InOther.Val0;
+        Instance.Val1 = Val1 + InOther.Val1;
+        return Instance;
+    }
+
+    int Val0 = 0;
+    int Val1 = 0;
+};
+
+int main()
+{
+    {
+        int Result = Sum(10, 20);
+        double Result2 = Sum(10.5, 20.3);
+    }
+    {
+        int Result = TemplateSum<int>(10, 20);
+        double Result2 = TemplateSum<double>(10.5, 20.3);
+        float Result3 = TemplateSum<float>(10.5f, 20.3f);
+        int Result4 = TemplateSum(10, 20);
+        ㄴ정수 대입이라 템플릿도 정수로 실행
+
+            FStruct A, B;
+        A.Val0 = 10;
+        B.Val0 = 20;
+
+        FStruct C = TemplateSum(A, B);
+        ㄴoperate + 로 템플릿에 호풀됬을때 둘이 더해짐.
+    }
+
+    {
+        double Result = TemplateSum2<double, int, float>(10, 30.5f);
+        double Result = TemplateSum2<double, int>(10, 10);
+        ㄴ템플릿 클래스에 반환형 부여 가능
+    }
+}*/
+
 }
 
 
 
 
 
-// 프로그램 실행: <Ctrl+F5> 또는 [디버그] > [디버깅하지 않고 시작] 메뉴
-// 프로그램 디버그: <F5> 키 또는 [디버그] > [디버깅 시작] 메뉴
-// <F10> 한줄씩 디버그, 왼쪽 화살표 드래그 드랍 가능, 브레이크 포인트(단축키<F9>)
-
-
-// 시작을 위한 팁: 
-//   1. [솔루션 탐색기] 창을 사용하여 파일을 추가/관리합니다.
-//   2. [팀 탐색기] 창을 사용하여 소스 제어에 연결합니다.
-//   3. [출력] 창을 사용하여 빌드 출력 및 기타 메시지를 확인합니다.
-//   4. [오류 목록] 창을 사용하여 오류를 봅니다.
-//   5. [프로젝트] > [새 항목 추가]로 이동하여 새 코드 파일을 만들거나, [프로젝트] > [기존 항목 추가]로 이동하여 기존 코드 파일을 프로젝트에 추가합니다.
-//   6. 나중에 이 프로젝트를 다시 열려면 [파일] > [열기] > [프로젝트]로 이동하고 .sln 파일을 선택합니다.
 
 //#pragma region
 //#pragma endregion
