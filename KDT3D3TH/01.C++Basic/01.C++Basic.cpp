@@ -31,6 +31,7 @@
 //include같은 경우는 지금 현재 폴더 기준
 #include "Function.h" 
 #include <locale>
+#include <vector>
 //현재 폴더 보다 상위 폴더에 포함시키고 싶은 해더파일이 있을때
 //#include"../Hello.h"
 //    ../ <<- 한칸 상위
@@ -1240,6 +1241,194 @@ int main()
     }
 }*/
 
+#pragma region Vector의 활용, 이터레이터(iterator), Operator, 구조체 Vector
+
+    {
+        {
+            std::vector Vector{ 0, 1, 2 };
+            Vector.push_back(33);
+        }
+        {
+            // 대략적으로 또는 명확하게 size를 예상할 수 있는 경우 반드시
+
+
+
+            std::vector<int> Vector;
+            Vector.reserve(100); 			// reserve: capacity(용량)만 확보->메모리 공간을 미리 확보한다. (100개)
+            for (size_t i = 0; i < 100; ++i)
+            {
+                Vector.push_back(i); // O(1)
+            }
+            Vector.push_back(1111);
+        }
+        {
+            std::vector<int> Vector;
+            Vector.resize(100);			// resize(할당 + 초기화)또는 reserve(할당)로 공간을 할당해두자
+            // resize: 용량 확보 이후 데이터 생성->0으로
+            for (size_t i = 0; i < 100; ++i)
+            {
+                Vector[i] = i;
+                Vector.at(i) = i + 1;
+            }
+            Vector.push_back(100);
+        }
+
+
+        // erase, insert
+        {
+            std::vector<int> Vector{ 0, 1, 2, 3, 4, 5 };
+            Vector.erase(Vector.begin() + 2); // O(N) (2번 인덱스 삭제)
+            Vector.insert(Vector.begin() + 2, 99); // O(N) (2번 인덱스에 99 삽입)
+
+            std::vector<int>::iterator It = std::find(Vector.begin(), Vector.end(), 99); // O(N) (99를 찾는다)->있으면 It에 주소반환
+
+
+            // 못찾았나요?
+            if (It == Vector.end())
+            {
+
+            }
+            // 찾았나요?
+            else if (It != Vector.end())
+            {
+                Vector.erase(It);  //해당부분 삭제
+            }
+        }
+
+        {
+            // 백터 안에 백터
+            std::vector<std::vector<int>> Vector;
+            Vector.resize(10);
+            for (int i = 0; i < 10; ++i)
+            {
+                Vector[i].resize(10);
+            }
+        }
+
+        {
+
+            {
+                struct FItem
+                {
+                    int ID = 0; // 아이템 고유 번호
+                    int Rarity = 1; // 희귀도
+                    int Attributes[10] = {}; // 추가 능력치
+
+                    FItem() {}
+                    FItem(int InID, int InRarity)
+                        : ID(InID), Rarity(InRarity)
+                    {
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            Attributes[i] = i;
+                        }
+                    }
+                    FItem(const FItem& Other)		//복사생성: 새 객체를 기존 객체로 재 생성할때 자동 호출
+                        : ID(Other.ID), Rarity(Other.Rarity)
+                    {
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            Attributes[i] = Other.Attributes[i];
+                        }
+                    }
+
+                    bool operator==(const FItem& Other) const		//연산자 오버로딩: 객체끼리도 연산을 직관적으로 할 수 있게 해준다.
+                    {
+                        if (ID != Other.ID || Rarity != Other.Rarity) return false;
+
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            if (Attributes[i] != Other.Attributes[i]) return false;
+                        }
+
+                        return true;
+                    }
+                };
+
+                std::vector<FItem> Inventory;    	    // FItem타입의 인벤토리 벡터
+                Inventory.reserve(10);               		// 미리 10개 공간 확보
+                FItem SearchItem;
+                SearchItem.ID = 101;                // 찾고자 하는 아이템 코드 (기존 객체)
+
+                Inventory.push_back(FItem(10, 2));   // 1번 슬롯: 임시 아이템 생성 → 복사 생성자로 인벤토리에 복사
+                Inventory.emplace_back(10, 2);       // 2번 슬롯: 직접 생성자 호출하여 인벤토리에 생성
+                Inventory.emplace_back(20, 3);       // 3번 슬롯: 생성자 호출
+                Inventory.emplace_back(SearchItem);  // 4번 슬롯: 복사 생성자 호출
+
+
+
+                // 반복자를 통해 SearchItem과 같은 아이템을 인벤토리에서 찾기
+                std::vector<FItem>::iterator It = std::find_if(Inventory.begin(), Inventory.end(),
+                    [&SearchItem](const FItem& Item) -> bool
+                    {
+                        return Item == SearchItem;
+                    }
+                );
+
+                if (It != Inventory.end()) //이터레이터는 컨테이너안에 요소를 가리킴. 객체가 있으면 (->)
+                {
+                    std::cout << "찾음! ID: " << It->ID << ", Rarity: " << It->Rarity << std::endl;
+                }
+                else
+                {
+                    std::cout << "못 찾음" << std::endl;
+                }
+
+
+            }
+
+        }
+    }
+
+  #pragma endregion
+#pragma region List 해야함
+#pragma endregion
+#pragma region Queue 해야함
+#pragma endregion
+#pragma region  Stack 해야함
+#pragma endregion
+
+#pragma region Pair
+
+    // [Pair]: 두 데이터를 들고 있는 컨테이너
+    {
+
+        //일반적인 pair방식과 출력
+        {
+            std::pair<int, std::string> Item1 = std::make_pair(1001, "검");
+            std::pair<int, std::string> Item2 = { 1002, "방패" };
+
+            std::cout << "Item1 - ID: " << Item1.first << ", Name: " << Item1.second << std::endl;
+            std::cout << "Item2 - ID: " << Item2.first << ", Name: " << Item2.second << std::endl;
+        }
+
+
+        {
+            struct FWeapon
+            {
+                int ID;
+                std::string Name;
+
+                FWeapon(int InID, const std::string& InName)
+                    : ID(InID), Name(InName) {
+                }
+            };
+
+            // 두 개의 FWeapon을 pair로 묶음
+            std::pair<FWeapon, FWeapon> Weapons = {
+                FWeapon(1001, "검"),
+                FWeapon(1002, "방패")
+            };
+
+            std::cout << "\n무기1 - ID: " << Weapons.first.ID << ", Name: " << Weapons.first.Name << std::endl;
+            std::cout << "무기2 - ID: " << Weapons.second.ID << ", Name: " << Weapons.second.Name << std::endl;
+        }
+
+
+
+#pragma endregion Map 해야함
+#pragma region
+#pragma endregion
 }
 
 
