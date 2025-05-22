@@ -32,6 +32,13 @@
 #include "Function.h" 
 #include <locale>
 #include <vector>
+#include <list>
+#include <iterator>
+#include <queue>
+#include <functional>
+#include <stack>
+#include <map>
+#include <unordered_map>
 //현재 폴더 보다 상위 폴더에 포함시키고 싶은 해더파일이 있을때
 //#include"../Hello.h"
 //    ../ <<- 한칸 상위
@@ -1381,17 +1388,203 @@ int main()
     }
 
   #pragma endregion
-#pragma region List 해야함
+#pragma region List
+    {
+        {
+            std::list<std::string> Inventory;
+
+            // 인벤토리에 아이템 추가 (뒤에 붙이기)
+            Inventory.push_back("검");
+            Inventory.push_back("방패");
+            Inventory.push_back("활");
+            Inventory.push_back("포션");
+            Inventory.push_back("망토");
+
+            // Iterator를 사용해서 포인터처럼 위치 이동
+            std::list<std::string>::iterator It = Inventory.begin(); // "검"
+            ++It;  // "방패"
+            ++It;  // "활" ← 여기 앞에 새 아이템 추가할 예정
+
+            // 중간에 아이템 삽입 ("활" 앞에 "전설의 검" 삽입)
+            Inventory.insert(It, "전설의 검");
+
+            // 인벤토리 전체 출력 - range 기반 for문
+            std::cout << "[인벤토리 아이템 목록 - range for]\n";
+            for (const std::string& Item : Inventory)
+            {
+                std::cout << "- " << Item << std::endl;
+            }
+
+            // 반복자(iterator)를 사용한 출력
+            std::cout << "\n[인벤토리 아이템 목록 - iterator for]\n";
+            for (std::list<std::string>::iterator It = Inventory.begin(); It != Inventory.end(); ++It)
+            {
+                std::cout << "- " << *It << std::endl;
+            }
+
+            // auto를 이용한 간단한 iterator
+            std::cout << "\n[인벤토리 아이템 목록 - auto iterator for]\n";
+            for (auto It = Inventory.begin(); It != Inventory.end(); ++It)
+            {
+                std::cout << "- " << *It << std::endl;
+            }
+        }
+    }
 #pragma endregion
-#pragma region Queue 해야함
+#pragma region Queue
+    {
+        #pragma region Queue
+        // [Queue]: 선입선출(FIFO, First In First Out) 구조입니다.
+        // 먼저 들어온 명령이 먼저 처리됩니다.
+
+        {
+            std::cout << "[명령 대기열 Queue]\n";
+
+            std::queue<int> CommandQueue;
+
+            // 명령을 큐에 추가 (0부터 9까지 순서대로)
+            for (int i = 0; i < 10; ++i)
+            {
+                CommandQueue.push(i);
+                // queue는 인덱스로 접근 불가 (random access 불가능)
+                // 예: CommandQueue[2]; 는 에러입니다.
+            }
+
+            // 명령 처리: 가장 오래된 명령부터 하나씩 꺼냄
+            while (!CommandQueue.empty())
+            {
+                int Command = CommandQueue.front(); // 가장 앞 명령 확인
+                CommandQueue.pop();                  // 처리 후 제거
+                std::cout << "처리된 명령: " << Command << "\n";
+            }
+        }
+#pragma endregion
+
+#pragma region PriorityQueue
+        // [priority_queue]: 우선순위 큐
+        // 기본적으로 큰 값이 높은 우선순위를 가집니다.
+        // 아래는 std::greater<int>를 써서 '낮은 값이 높은 우선순위'로 동작합니다.
+        {
+            std::priority_queue<int, std::vector<int>, std::greater<int>> PriorityQueue;
+
+            PriorityQueue.push(50);  // 명령 우선순위 값 (낮을수록 먼저 처리됨)
+            PriorityQueue.push(40);
+            PriorityQueue.push(70);
+            PriorityQueue.push(30);
+            PriorityQueue.push(100);
+
+            std::cout << "\n[우선순위 명령 대기열 PriorityQueue]\n";
+
+            while (!PriorityQueue.empty())
+            {
+                int Command = PriorityQueue.top(); // 가장 높은 우선순위 명령 확인
+                PriorityQueue.pop();                // 처리 후 제거
+                std::cout << "처리된 우선 명령: " << Command << "\n";
+            }
+        }
+#pragma endregion
+
+#pragma region MultiQueue_ByPriority
+        // 여러 부대(우선순위 그룹) 별로 큐를 분리해 명령 처리하기
+
+        {
+            std::queue<int> RegularUnitQueue;   // 일반 부대 명령 큐
+            std::queue<int> EliteUnitQueue;     // 정예 부대 명령 큐
+            std::queue<int> SpecialForceQueue;  // 특수 부대 명령 큐
+
+            // 부대 구분을 위한 열거형 (enum class)
+            enum class EPriority
+            {
+                RegularUnit,    // 일반 부대
+                EliteUnit,      // 정예 부대
+                SpecialForce    // 특수 부대
+            };
+
+            // 명령을 우선순위에 맞춰 각 큐에 넣는 함수
+            // std::function 사용 이유:
+            //  - 람다, 함수 포인터, 함수 객체 등을 모두 담을 수 있어서 유연하다
+            //  - 캡쳐(&)로 외부 변수(큐)를 직접 사용할 수 있어 편리하다
+            std::function<void(EPriority, int)> EnqueueCommand = [&](EPriority UnitType, int Command)
+                {
+                    switch (UnitType)
+                    {
+                    case EPriority::RegularUnit:
+                        RegularUnitQueue.push(Command);
+                        break;
+                    case EPriority::EliteUnit:
+                        EliteUnitQueue.push(Command);
+                        break;
+                    case EPriority::SpecialForce:
+                        SpecialForceQueue.push(Command);
+                        break;
+                    default:
+                        break;
+                    }
+                };
+
+            // 명령 추가 (우선순위 별로)
+            EnqueueCommand(EPriority::EliteUnit, 10000);
+            EnqueueCommand(EPriority::RegularUnit, 150);
+            EnqueueCommand(EPriority::EliteUnit, 140);
+            EnqueueCommand(EPriority::SpecialForce, 130);
+            EnqueueCommand(EPriority::EliteUnit, 1300);
+            EnqueueCommand(EPriority::SpecialForce, 21300);
+
+            // 각 부대 명령 출력 및 처리
+            std::cout << "\n[일반 부대 명령]\n";
+            while (!RegularUnitQueue.empty())
+            {
+                std::cout << "-> " << RegularUnitQueue.front() << "\n";
+                RegularUnitQueue.pop();
+            }
+
+            std::cout << "\n[정예 부대 명령]\n";
+            while (!EliteUnitQueue.empty())
+            {
+                std::cout << "-> " << EliteUnitQueue.front() << "\n";
+                EliteUnitQueue.pop();
+            }
+
+            std::cout << "\n[특수 부대 명령]\n";
+            while (!SpecialForceQueue.empty())
+            {
+                std::cout << "-> " << SpecialForceQueue.front() << "\n";
+                SpecialForceQueue.pop();
+            }
+        }
+    }
+#pragma endregion
 #pragma endregion
 #pragma region  Stack 해야함
+#include <iostream>
+#include <stack>
+
+    
+    {
+        std::stack<int> CommandStack;
+
+        std::cout << "\n[명령 입력 순서 - push()]\n";
+        for (int i = 0; i < 10; ++i)
+        {
+            std::cout << "명령 추가: " << i << std::endl;
+            CommandStack.push(i); // i번째 명령을 입력 (0 ~ 9)
+        }
+
+        std::cout << "\n[명령 처리 순서 - pop()]\n";
+        while (!CommandStack.empty())
+        {
+            int CurrentCommand = CommandStack.top(); // 가장 마지막 명령 확인
+            std::cout << "명령 처리: " << CurrentCommand << std::endl;
+            CommandStack.pop(); // 가장 최근 명령 제거 (처리 완료)
+        }
+    }
+
 #pragma endregion
 
 #pragma region Pair
 
     // [Pair]: 두 데이터를 들고 있는 컨테이너
-    {
+    
 
         //일반적인 pair방식과 출력
         {
@@ -1426,8 +1619,354 @@ int main()
 
 
 
-#pragma endregion Map 해야함
-#pragma region
+#pragma endregion 
+#pragma region Map
+        // map: 내부적으로 pair (키, 값)를 저장하는 정렬된 컨테이너
+    // #include <map>
+    // 내부는 레드-블랙 트리로 구현됨 (자동 정렬 트리)
+    // 키 기준 자동 정렬 (기본: 오름차순)
+    // insert/emplace/find 등으로 검색, 삽입, 삭제 가능
+
+
+        {
+            {
+                // Map 예시: (아이템ID, 아이템이름)
+                std::map<int, std::string/*, std::greater<int>*/> Map;
+
+                // pair를 먼저 만들어 넣을 수도 있고
+                std::pair<int, std::string> Pair = { 1, "포션" };
+
+                // 여러 가지 방식으로 키-값 쌍을 삽입
+                Map.emplace(2, "에테르");
+                Map.insert(std::make_pair(0, "힐링포션"));
+
+                // 키 중복이면 무시됨 (0은 이미 있음)
+                Map.insert(std::make_pair(0, "중복시도"));
+
+                Map.insert(Pair); // (1, "포션")
+
+                // [] 방식 접근: 있으면 반환, 없으면 기본 생성된 값으로 추가
+                std::string Value = Map[1]; // → "포션"
+                std::string& Value2 = Map[200]; // 존재하지 않으므로 "빈 문자열" 생성됨
+                Value2 = "희귀 아이템";
+
+                // contains: 해당 키가 존재하는지 확인
+                bool bContains = Map.contains(200); // true
+                if (bContains)
+                {
+                    std::string& Value3 = Map[200]; // 접근 가능
+                }
+
+                bContains = Map.contains(300); // false
+                if (!bContains)
+                {
+                    std::cout << "해당 키(300)를 찾을 수 없습니다!\n";
+                }
+
+                // find: 반복자 방식 접근 (존재 시 위치 반환, 없으면 Map.end())
+                std::map<int, std::string>::iterator It = Map.find(1);
+                It->second = "업그레이드 포션";
+
+                auto It2 = Map.find(2);
+                auto ItNotFound = Map.find(5);
+                if (ItNotFound == Map.end())
+                {
+                    std::cout << "해당 키(5)를 찾을 수 없습니다!\n";
+                }
+
+                // 전체 출력 (정렬된 순서로 출력됨)
+                std::cout << "\n[아이템 목록]\n";
+                for (auto It = Map.begin(); It != Map.end(); ++It)
+                {
+                    std::cout << std::format("아이템ID: {}, 이름: {}\n", It->first, It->second);
+                }
+
+                // 전체 값을 일괄 수정
+                for (auto& Pair : Map)
+                {
+                    Pair.second = "삭제된 아이템";
+                }
+            }
+
+            {
+                // 플레이어 정보 구조체 정의
+                struct FPlayerInfo
+                {
+                    FPlayerInfo() {}
+                    FPlayerInfo(int InPlayerUID, std::string InPlayerName, int InHP, int InMP)
+                        : PlayerUID(InPlayerUID), PlayerName(InPlayerName), HP(InHP), MP(InMP)
+                    {
+                    }
+
+                    int PlayerUID = 0;
+                    std::string PlayerName;
+                    int HP = 100;
+                    int MP = 0;
+
+                    // map에 넣기 위해 비교 연산자 필요 (키 정렬 기준)
+                    bool operator<(const FPlayerInfo& InOther) const
+                    {
+                        return PlayerUID < InOther.PlayerUID;
+                    }
+                };
+
+                {
+                    // 키: Player 이름, 값: FPlayerInfo
+                    std::map<std::string, FPlayerInfo> PlayerMap;
+
+                    // try_emplace → 없을 때만 삽입 (중복 방지)
+                    for (int i = 0; i < 20; ++i)
+                    {
+                        std::string PlayerName = "Player" + std::to_string(i);
+                        //to_string을 이용해 플레이어넘버를 붙여서 Playername에 저장
+                        PlayerMap.try_emplace(PlayerName, i, PlayerName, 100, i);
+                    }
+
+                    const std::string Key = "Player1";
+                    if (PlayerMap.contains(Key))
+                    {
+                        FPlayerInfo& PlayerInfo = PlayerMap[Key];
+                        std::cout << std::format("\n[{} 정보] HP: {}, MP: {}\n", Key, PlayerInfo.HP, PlayerInfo.MP);
+                        PlayerMap.erase(Key); // 삭제 예시
+                    }
+                }
+
+                // ※ 구조체 자체를 키로 쓸 수도 있음 (operator< 필요)
+                /*
+                std::map<FPlayerInfo, FPlayerInfo> PlayerMap;
+                for (int i = 0; i < 20; ++i)
+                {
+                    std::string PlayerName = "Player" + std::to_string(i);
+                    FPlayerInfo PlayerInfo(i, PlayerName, 100, i);
+                    PlayerMap.try_emplace(PlayerInfo, PlayerInfo);
+                }
+
+                FPlayerInfo PlayerInfo(0, "", 100, 0);
+                bool bContains = PlayerMap.contains(PlayerInfo);
+                if (bContains)
+                {
+                    FPlayerInfo& FindPlayerInfo = PlayerMap[PlayerInfo];
+                }
+                */
+            }
+
+        }
+#pragma endregion
+#pragma region Hash
+        {
+            {
+                std::hash<std::string> WeaponHash;
+                std::string String = "검";
+                std::string String2 = "방패";
+                size_t Hash = WeaponHash(String);
+                size_t Hash2 = WeaponHash(String2);
+
+                // 서로 더른 입력값의 해쉬 결과가 극히 낮은 확률로 동일 할 수 있다
+                // 이를 Hash 충돌 이라고 한다
+            }
+            {
+                std::hash<int> IntHashFunction;
+                size_t Hash = IntHashFunction(10);
+                size_t Hash2 = IntHashFunction(20);
+            }
+            {
+                using FHashKey = size_t;
+                struct FStruct
+                {
+                    std::string WeaponName;
+                    int Damage = 1;
+                    int Durability = 100;
+
+                    FHashKey HashKey = 0;
+
+                    FStruct(std::string_view InName, int InValue, int InValue2)
+                        : WeaponName(InName), Damage(InValue), Durability(InValue2)
+                    {
+                        HashKey = GetHash(); //생성자-> 해쉬 함수 호출
+                    }
+
+                    [[nodiscard]] FHashKey GetHash() const
+                    {
+                        //if (HashKey == 0)
+                        {
+                            // 여러 필드를 조합할 때 순서와 충돌을 줄이기 위해 시프트 + XOR를 사용
+                            return std::hash<std::string>()(WeaponName)
+                                ^ (std::hash<int>()(Damage) << 1)
+                                ^ (std::hash<int>()(Durability) << 2);
+                        }
+
+                        //return HashKey;
+                    }
+
+                    bool operator==(const FStruct& InOther) const
+                    {
+                        return GetHash() == InOther.GetHash();
+                    }
+                };
+
+                FStruct WP1 = FStruct("검", 50, 100);
+                FStruct WP2 = FStruct("활", 30, 80);
+                FStruct WP3 = FStruct("활", 30, 80);
+
+                FHashKey WPH1 = WP1.GetHash();
+                unsigned long long WPH1_1 = WP1.GetHash();
+                //해쉬값을 표현해주기 위한거라 부호없는 8바이트 가능
+
+                FHashKey WPH2 = WP2.GetHash();
+                FHashKey WPH3 = WP3.HashKey;
+
+                if (WPH1 == WPH2)
+                {
+                    std::cout << "무기1과 2는 같다\n";
+                }
+                else {
+
+                    std::cout << "무기1과 2는 다르다\n";
+                }
+
+                if (WPH1 == WPH1_1)
+                {
+                    std::cout << "무기1과 1_1은 같다\n";
+                }
+                else {
+
+                    std::cout << "무기1과 1_1은 다르다\n";
+                }
+
+                if (WPH2 == WPH3)
+                {
+                    std::cout << "무기2과 3는 같다\n";
+                }
+                else {
+
+                    std::cout << "무기2과 3는 다르다\n";
+                }
+            }
+        }    
+#pragma endregion
+
+#pragma region unordered map
+        {
+        
+                        //	    map							unordered_map
+                // 순서	오름차순정렬(바꾸기가능)	정렬 안함
+                // 구현	Red Black Tree				Hash Table
+                // 탐색 시간	log(n)						O(1)
+                // 삽입 시간	log(n)						O(1)
+                // 
+                // 비정렬 연관 컨테이너(unordered associative container) / 해시 테이블
+                // #include <unordered_map>
+                // map은 키 기반으로 정렬을 해줬으나, 예는 안해준다{
+                // hashmap으로 구현되어 있어서, 이름이 hash_map이면 좋겠지만, C++11에 추가되어(상대적으로 늦게)
+                // 이미 많은 서드파티 라이브러리들이 hash로 시작하는 이름이 많아서 hash 대신 unordered란 접두어를 사용했다고 함 (표준위원회가)
+                // 사용법은 unordered_map은 원소를 정렬하지 않는다는 점을 제외하면 map과 동일합니다.
+                // 원소를 추가하고 삭제하고 조회하는 연산의 속도는 대체로 상수시간이고, 최악의 경우라도 선형 시간에 처리됩니다.
+                // 원소를 조회하는 속도는 map보다 훨씬 빠릅니다.
+
+                {   //선언 및 키 or 키값 변경
+
+                    std::unordered_map<int, std::string> UnorderedMap;
+                    UnorderedMap.insert(std::make_pair(999, "Test999"));
+                    UnorderedMap.emplace(997, "키가변값");
+
+                    for (int i = 0; i <= 20; ++i)
+                    {
+                        UnorderedMap[i] = "Test" + std::to_string(i);
+                    }
+
+                    //키 삭제
+                    auto it = UnorderedMap.find(997); //1찾아서 it에 저장 std::unordered_map<int, std::string>::iterator
+                    if (it != UnorderedMap.end()) {
+                        std::string exchange = it->second;  // 값 백업
+                        UnorderedMap.erase(it);                   // 기존 키 삭제
+
+                        UnorderedMap[20] = exchange;
+                        UnorderedMap[9999] = exchange;  // 만들었던 키 or 새로운 키에 삽입
+                    }
+
+                    if (UnorderedMap.contains(2))
+                    {
+                        std::string& Value = UnorderedMap[2]; //키값
+                        Value = "AAA";
+                    }
+
+                    std::unordered_map<int, std::string>::iterator It = UnorderedMap.find(2);
+                    if (It != UnorderedMap.end())
+                    {
+                        It->second = "BBB";
+                    }
+                }
+
+                
+
+                    // 키값에 따라 정보 분리가 필요한 경우(예를 들어, 학생 성적 정보(학생 이름, 점수))-> 구조체 사용 
+                {
+                        struct FPlayer
+                        {
+                            int Number;
+                            int UID;
+                            std::string Name;
+
+                            size_t MakeHash() const
+                            {
+                                return std::hash<int>()(Number)
+                                    ^ (std::hash<int>()(UID) << 1)
+                                    ^ (std::hash<std::string>()(Name) << 2);
+                                /*
+                                std::size_t NumberHash = std::hash<int>{}(Player.Number);
+                                std::size_t UIDHash = std::hash<int>{}(Player.UID);
+                                std::size_t NameHash = std::hash<std::string>{}(Player.Name);
+
+                                return ScoreHash ^ (NumberHash << 1)^ (NameHash << 2);*/
+                            }
+
+                            bool operator==(const FPlayer& Other) const
+                            {
+                                return MakeHash() == Other.MakeHash();
+                            }
+                        };
+
+                        struct FPlayerHash
+                        {
+                            std::size_t operator()(const FPlayer& Player) const
+                            {
+                                return Player.MakeHash();
+                            }
+                        };
+
+
+
+
+                        std::unordered_map<FPlayer, int, FPlayerHash> PlayerMap;
+                        //std::unordered_map<키값타입, 값타입, 키값 저장 방식 객체> PlayerMap;
+
+                        FPlayer P1{ 1, 85, "다오" };
+                        FPlayer P2{ 2, 34, "마리드" };
+                        FPlayer P3{ 3, 67, "투탑" };
+
+                        PlayerMap[P1] = 120; //구조체 키에 해당하는 값들
+                        PlayerMap[P2] = 80;
+                        PlayerMap[P3] = 95;
+
+
+                        for (const auto& Pair : PlayerMap)
+                        {
+                            std::cout << "Number: " << Pair.first.Number
+                                << ", UID: " << Pair.first.UID
+                                << ", Name: " << Pair.first.Name
+                                << ", Score: " << Pair.second << '\n';
+                        }
+
+
+
+
+
+                    }
+
+
+
+
+        }
 #pragma endregion
 }
 
