@@ -1173,8 +1173,8 @@ FAssetManager::Get()->Initialize(128, 256);
 */
 
 /*
-#pragma once
-#include <vector>
+
+
 
 inline int Sum(const int a, const int b) 메인함수에 sum복사
 {
@@ -1556,8 +1556,7 @@ int main()
 #pragma endregion
 #pragma endregion
 #pragma region  Stack 해야함
-#include <iostream>
-#include <stack>
+
 
     
     {
