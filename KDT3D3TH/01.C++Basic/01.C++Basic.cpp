@@ -72,7 +72,7 @@ int main()
         //8진수 0
         int v8{ 0 };
         //16진수 0x
-        int v16{ 0 };
+        int v16{ 0x1b };
 
         //부동소수점(float) 소수 뒤에 f
         float f{ 3.14f };
@@ -1916,7 +1916,8 @@ int main()
                                 std::size_t UIDHash = std::hash<int>{}(Player.UID);
                                 std::size_t NameHash = std::hash<std::string>{}(Player.Name);
 
-                                return ScoreHash ^ (NumberHash << 1)^ (NameHash << 2);*/
+                                return ScoreHash ^ (NumberHash << 1)^ (NameHash << 2);
+                                */
                             }
 
                             bool operator==(const FPlayer& Other) const
