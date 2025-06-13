@@ -457,7 +457,7 @@ int main()
                 
                 ++count;
             }
-
+              
             {//c++20 부터 
                 for (std::array Array2{ 1,2,3 }; int i : Array2)
                     { 
