@@ -1,0 +1,187 @@
+
+CDevice::Instance().Initalize(WindowHandle, 1280, 720, true);
+ㄴ처음 생성때 windowHandle을 생성해서 디바이스에 전달
+ㄴWindowHandle(HWND)는 WinAPI로 만든 윈도우 핸들이고
+ㄴDirectX는 이 핸들을 이용해 어디에 렌더링할지를 알게 됩니다. (swapDesc.OutputWindow = hWnd;)
+
+ID3D11Device* Device = nullptr; : GPU 리소스 생성
+ID3D11DeviceContext* Context = nullptr; : 실제 명령 실행
+ㄴ둘다 생성: D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, flag, &fLevel,
+        1, D3D11_SDK_VERSION, &Device, &fLevelResult, &Context)
+
+IDXGISwapChain* SwapChain = nullptr;
+ㄴ백버퍼 정의후 생성하기 위해서는 factory필요. 디바이스->어뎁터->팩토리->CrateSwapChain
+ㄴ백버퍼에서 먼저 그려지고 스왁채인에 Present()호풀로 GPU가 그린 결과를 화면으로 전환해준다.
+
+ID3D11RenderTargetView* TargetView = nullptr;
+ㄴ백버퍼 정의후 factory로 생성된 스왑체인에 백버퍼와 연결된다<- 참조로 얻어오고 연결
+ㄴ백버퍼에 직접 그리기 위한 대상을 생성
+ㄴ이후 settarger을 통해 해당 백버퍼에 그림 그리기
+
+ID3D11DepthStencilView* DepthStencil = nullptr;
+ㄴ각 픽셀은 뎁스와 스탠실을 가지고있음.
+ㄴ뎁스를 통해서 z값을 이용해 판단
+ㄴ스탠실을 이용해 그래픽 처리 & 특수 효과
+HWND hWnd;
+FResolution RS;
+
+
+
+랜더링 파이프라인
+
+[1] Input Assembler
+       ↓
+[2] Vertex Shader
+       ↓
+[3] (Optional) Hull Shader → Tessellator → Domain Shader
+       ↓
+[4] (Optional) Geometry Shader
+       ↓
+[5] Rasterizer
+       ↓
+[6] Pixel Shader
+       ↓
+[7] Output Merger (OM)
+
+
+
+
+void CGraphicShader::AddInputLayoutDesc(const char* _sementic, unsigned int _sementicIndex,
+	DXGI_FORMAT _fmt, unsigned int _inputSlot, unsigned int _size,
+	D3D11_INPUT_CLASSIFICATION _inputSlotClass, unsigned int _instanceDataStepRate)
+ㄴ이것은 Input Assembler 단계에서 버텍스 버퍼로부터 정점 정보를 어떻게 읽을지 지정하는 핵심 코드입니다.
+
+
+gamemanager에서 render부분
+
+    CDevice::Instance().ClearBackBuffer(ClearColor);
+    CDevice::Instance().ClearDepthStencil(1.f, 0);
+    CDevice::Instance().SetTarget();
+
+    std::shared_ptr<CShader> shader = CShaderManager::Instance().FindShader("ColorMeshShader"); 
+    //제작한 매쉬 셰이더를 받아오기.
+초반 초기화 부분에서 shadermanager 안에서 초기화
+ㄴ 이름을 가지고있음.
+ㄴ initialize안에 create
+ㄴ 이후 해당 코드에서 찾기
+
+    std::shared_ptr<CMesh> mesh = CAssetManager::Instance().GetMeshManager()->FindMesh("CenterRect"); 
+    //  정의한 매쉬를 받아오기
+초반 초기화 부분에서 assetmanager 안에서 초기화
+ㄴ 이름을 가지고있음.
+ㄴmesh 생성후 meshManager에 저장
+ㄴ initialize안에 create
+ㄴ 이후 해당 코드에서 찾기
+
+
+    shader->SetShader();
+    mesh->Render();
+
+    //그리기
+    CDevice::Instance().Render();
+
+
+
+###매쉬###
+
+//메쉬 : 폴리곤들의 집합
+//폴리곤 : 정점들이 이루는 삼각형
+//정점 : 버텍스
+ㄴ실제 위치
+//정점들의 집합 : 버텍스버퍼
+//정점들이 도형을 그리는 방법? 순서? : 인덱스버퍼
+	ㄴ정점들의 순서 배열
+
+//맴버 변수
+	FVertexBuffer VertexBuffer;
+	std::vector<FMeshSlot*> MeshSlots;
+	//정점을 해석하는 방법
+	D3D11_PRIMITIVE_TOPOLOGY Primitive;
+
+//멤버 함수
+	virtual bool CreateMesh
+	bool CreateBuffer
+	void Render();
+
+현재는 MeshMansgerClass에서 정의된  버텍스 버퍼를 바탕으로 mesh만들어서 저장. 
+
+
+
+
+
+    //Vertext Buffer
+    FVertexColor centerRect[4]
+    {
+        FVertexColor(-0.5f, 0.5f, 0.f, 1.f, 0.f, 0.f, 1.f),   //0
+        FVertexColor(0.5f, 0.5f, 0.f,  1.f, 0.f, 0.f, 1.f),   //1
+        FVertexColor(-0.5f, -0.5f, 0.f, 0.f, 1.f, 0.f, 1.f), //2
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //3
+    };
+
+    //IndexBufferData
+    unsigned short rectIndex[6] = { 0, 1, 3, 0, 3, 2 };
+0 1
+2 3
+4
+파라미터	의미
+x	정점의 X 좌표 위치
+y	정점의 Y 좌표 위치
+z	정점의 Z 좌표 위치
+r	빨간색 채널 값 (0~1)
+g	초록색 채널 값 (0~1)
+b	파란색 채널 값 (0~1)
+a	알파(투명도) 값 (0~1)
+
+
+    FVertexColor centerRect[10]
+    {
+        FVertexColor(-0.5f, 0.5f, 0.f, 1.f, 0.f, 0.f, 1.f),   //0
+        FVertexColor(0.5f, 0.5f, 0.f,  1.f, 0.f, 0.f, 1.f),   //1
+        FVertexColor(-0.5f, -0.5f, 0.f, 0.f, 1.f, 0.f, 1.f), //2
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //3
+
+
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //4
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //5
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //6
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //7
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //8
+        FVertexColor(0.5f, -0.5f, 0.f, 0.f, 0.f, 1.f, 1.f)  //9
+    };
+
+
+
+중심 0,0
+
+
+
+맨왼쪽
+ FVertexColor(-0.5f, 0.5f, 0.f, 1.f, 0.f, 0.f, 1.f),   //0
+맨오른쪽
+FVertexColor(0.5f, 0.5f, 0.f,  1.f, 0.f, 0.f, 1.f),   //1
+맨오른쪽 아래
+FVertexColor(0.5f, -0.7f, 0.f,  1.f, 0.f, 0.f, 1.f),   //2
+
+
+FVertexColor(0.0f, 0.5f, 0.f, 1.f, 1.f, 0.f, 1.f)  //1
+FVertexColor(0.1f, 0.2f, 0.f, 1.f, 1.f, 0.f, 1.f)  //2
+FVertexColor(0.5f, 0.2f, 0.f, 1.f, 1.f, 0.f, 1.f)  //3
+FVertexColor(0.2f, -0.1f, 0.f, 1.f, 1.f, 0.f, 1.f)  //4
+FVertexColor(0.3f, -0.5f, 0.f, 1.f, 1.f, 0.f, 1.f)  //5
+FVertexColor(0.0f, -0.3f, 0.f, 1.f, 1.f, 0.f, 1.f)  //6
+FVertexColor(-0.3f, -0.5f, 0.f, 1.f, 1.f, 0.f, 1.f)  //7
+FVertexColor(-0.2f, -0.1f, 0.f, 1.f, 1.f, 0.f, 1.f)  //8
+FVertexColor(-0.5f, 0.2f, 0.f, 1.f, 1.f, 0.f, 1.f) //9
+FVertexColor(-0.1f, 0.2f, 0.f, 1.f, 1.f, 0.f, 1.f)  //10
+
+
+
+
+
+
+
+
+
+
+
+
